@@ -1,0 +1,26 @@
+{
+  "articles": [
+    {
+      "id": "LevFaIrhD_k",
+      "Title": "Test",
+      "Description": "qqqqq",
+      "Author": "Bob",
+      "Date": "2026-04-03T20:35:00.7454424+03:00"
+    },
+    {
+      "id": "k21gAmyu0TU",
+      "title": "Test",
+      "description": "qqqqq",
+      "author": "Bob",
+      "date": "2026-04-03T20:37:19.0743638+03:00"
+    },
+    {
+      "id": "FgWoBSYkUxs",
+      "title": "Test2",
+      "description": "www",
+      "author": "Alex",
+      "date": "2026-04-03T20:42:38.4290549+03:00"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
