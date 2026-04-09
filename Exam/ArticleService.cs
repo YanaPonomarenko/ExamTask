@@ -9,7 +9,7 @@ using static System.Net.WebRequestMethods;
 
 namespace Exam;
 
-public class ArticleService
+public class ArticleService : IDisposable
 {
     private readonly HttpClient _client;
     private readonly string _baseUrl;
@@ -19,25 +19,46 @@ public class ArticleService
         _client = new HttpClient();
         _baseUrl = baseUrl;
     }
-
     public async Task<List<Article>> GetAllAsync() =>
-        await _client.GetFromJsonAsync<List<Article>>(_baseUrl);
+        await _client.GetFromJsonAsync<List<Article>>(_baseUrl) ?? new List<Article>();
 
-    public async Task<Article> GetByIdAsync(string id) =>
+    public async Task<Article?> GetByIdAsync(string id) =>
         await _client.GetFromJsonAsync<Article>($"{_baseUrl}/{id}");
-
-    public async Task<List<Article>> SearchByTitleAsync(string title) =>
-        await _client.GetFromJsonAsync<List<Article>>($"{_baseUrl}?title={title}");
-
     public async Task<string?> AddArticleAsync(Article article)
     {
         var response = await _client.PostAsJsonAsync(_baseUrl, article);
-
         if (response.IsSuccessStatusCode)
         {
             var added = await response.Content.ReadFromJsonAsync<Article>();
             return added?.id;
         }
         return null;
+    }
+    public async Task<bool> DeleteArticleAsync(string id)
+    {
+        var response = await _client.DeleteAsync($"{_baseUrl}/{id}");
+        return response.IsSuccessStatusCode;
+    }
+    public async Task<Article?> PatchArticleAsync(string id, Dictionary<string, object> updates)
+    {
+        var json = JsonSerializer.Serialize(updates);
+        var data = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await _client.PatchAsync($"{_baseUrl}/{id}", data);
+
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<Article>();
+        }
+        return null;
+    }
+    public async Task<List<Article>> SearchByTitleAsync(string title)
+    {
+        var all = await GetAllAsync();
+        return all.Where(a => a.Title?.Contains(title, StringComparison.OrdinalIgnoreCase) == true).ToList();
+    }
+
+    public void Dispose()
+    {
+        _client?.Dispose();
     }
 }
